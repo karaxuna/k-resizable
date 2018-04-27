@@ -1,0 +1,37 @@
+{
+  "name": "k-resizable",
+  "version": "0.0.1",
+  "private": false,
+  "scripts": {
+    "start": "\"./node_modules/.bin/webpack-dev-server\" --config webpack.config.demo.js",
+    "build": "NODE_ENV=production ./node_modules/.bin/webpack -p --config webpack.config.lib.js",
+    "prepublish": "npm run build"
+  },
+  "main": "dist/k-resizable.js",
+  "dependencies": {
+    "fastdom": "^1.0.8"
+  },
+  "devDependencies": {
+    "@types/react": "^16.0.3",
+    "@types/react-dom": "^16.0.3",
+    "autoprefixer": "^7.1.6",
+    "awesome-typescript-loader": "^3.2.3",
+    "css-loader": "^0.26.1",
+    "extract-text-webpack-plugin": "^2.0.0-rc.3",
+    "file-loader": "^0.10.0",
+    "html-webpack-plugin": "^2.30.1",
+    "node-sass": "^4.5.3",
+    "postcss-loader": "^2.0.9",
+    "precss": "^2.0.0",
+    "sass-loader": "^6.0.6",
+    "style-loader": "^0.13.1",
+    "ts-loader": "^0.9.5",
+    "typescript": "^2.4.1",
+    "url-loader": "^0.5.9",
+    "webpack": "^2.2.1",
+    "webpack-dev-middleware": "^1.10.1",
+    "webpack-dev-server": "^2.4.1",
+    "webpack-hot-middleware": "^2.17.1",
+    "webpack-merge": "^4.1.2"
+  }
+}
