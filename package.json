@@ -2,6 +2,10 @@
   "name": "k-resizable",
   "version": "0.0.1",
   "private": false,
+  "author": {
+    "name": "Kakhaber Bazerashvili",
+    "email": "kaxabernet@gmail.com"
+  },
   "scripts": {
     "start": "\"./node_modules/.bin/webpack-dev-server\" --config webpack.config.demo.js",
     "build": "NODE_ENV=production ./node_modules/.bin/webpack -p --config webpack.config.lib.js",
