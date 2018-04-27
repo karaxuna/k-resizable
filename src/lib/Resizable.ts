@@ -2,16 +2,16 @@ import Utils from './Utils';
 
 class Resizable {
     container: HTMLTableElement;
-    resizables;
-    resizing;
+    parent: HTMLElement;
+    resizables = [];
+    resizing = false;
     matrix;
 
     static DEFAULT_AMPLITUDE = 6;
 
     constructor(container) {
         this.container = container;
-        this.resizables = [];
-        this.resizing = false;
+        this.parent = container.tagName.toLowerCase() === 'table' ? this.container : this.container.offsetParent as HTMLElement;
 
         if (this.container.tagName.toLowerCase() === 'table') {
             this.updateMatrix();
@@ -67,23 +67,17 @@ class Resizable {
     }
 
     setResizables(e) {
+        let mouseOffset = Utils.getMouseOffset(this.parent, e);
+
+        if (!mouseOffset) {
+            return;
+        }
+
         let resizable;
         if (this.container.tagName.toLowerCase() === 'table') {
-            let mouseOffset = Utils.getMouseOffset(this.container, e);
-
-            if (!mouseOffset) {
-                return;
-            }
-
             resizable = Utils.getTableResizableCell(this.matrix, mouseOffset, Resizable.DEFAULT_AMPLITUDE);
         }
         else {
-            let mouseOffset = Utils.getMouseOffset(e.target.offsetParent, e);
-
-            if (!mouseOffset) {
-                return;
-            }
-
             let sides = Utils.getResizableSides(this.container, Resizable.DEFAULT_AMPLITUDE, mouseOffset);
 
             if (sides.some(side => side !== 0)) {
