@@ -1,22 +1,16 @@
 import Utils from './Utils';
+import EventTarget from './EventTarget';
 
-class Resizable {
-    container: HTMLTableElement;
-    parent: HTMLElement;
-    resizables = [];
-    resizing = false;
-    matrix;
-
+abstract class ResizableElement extends EventTarget {
     static DEFAULT_AMPLITUDE = 6;
 
+    container: HTMLElement;
+    resizables = [];
+    resizing = false;
+
     constructor(container) {
+        super();
         this.container = container;
-        this.parent = container.tagName.toLowerCase() === 'table' ? this.container : this.container.offsetParent as HTMLElement;
-
-        if (this.container.tagName.toLowerCase() === 'table') {
-            this.updateMatrix();
-        }
-
         this.bindEvents();
     }
 
@@ -39,19 +33,21 @@ class Resizable {
     handleMousedown = (e) => {
         if (this.resizables.length) {
             this.resizing = true;
-
-            if (this.container.tagName.toLowerCase() === 'table') {
-                Array.prototype.push.apply(this.resizables, Utils.getTableOtherResizableCells(this.matrix, this.resizables[0]))
-            }
+            this.trigger('resize', e);
         }
     }
 
+    abstract resizeResizables(e: MouseEvent): void;
+    abstract setResizables(e: MouseEvent): void;
+
     handleMousemove = (e) => {
         if (this.resizing) {
-            Utils.resizeResizables(this.resizables, e.movementX, e.movementY);
+            this.resizeResizables(e);
+            //Utils.resizeResizables(this.resizables, e.movementX, e.movementY);
         }
         else {
             this.setResizables(e);
+            this.updateStyles();
         }
     }
 
@@ -62,35 +58,31 @@ class Resizable {
         }
     }
 
-    updateMatrix() {
-        this.matrix = Utils.getTableCellMatrix(this.container);
-    }
+    // setResizables(e) {
+    //     let mouseOffset = Utils.getMouseOffset(this.parent, e);
 
-    setResizables(e) {
-        let mouseOffset = Utils.getMouseOffset(this.parent, e);
+    //     if (!mouseOffset) {
+    //         return;
+    //     }
 
-        if (!mouseOffset) {
-            return;
-        }
+    //     let resizable;
+    //     if (this.container.tagName.toLowerCase() === 'table') {
+    //         resizable = Utils.getTableResizableCell(this.matrix, mouseOffset, Resizable.DEFAULT_AMPLITUDE);
+    //     }
+    //     else {
+    //         let sides = Utils.getResizableSides(this.container, Resizable.DEFAULT_AMPLITUDE, mouseOffset);
 
-        let resizable;
-        if (this.container.tagName.toLowerCase() === 'table') {
-            resizable = Utils.getTableResizableCell(this.matrix, mouseOffset, Resizable.DEFAULT_AMPLITUDE);
-        }
-        else {
-            let sides = Utils.getResizableSides(this.container, Resizable.DEFAULT_AMPLITUDE, mouseOffset);
+    //         if (sides.some(side => side !== 0)) {
+    //             resizable = {
+    //                 element: this.container,
+    //                 sides
+    //             };
+    //         }
+    //     }
 
-            if (sides.some(side => side !== 0)) {
-                resizable = {
-                    element: this.container,
-                    sides
-                };
-            }
-        }
-
-        this.resizables = resizable ? [resizable] : [];
-        this.updateStyles();
-    }
+    //     this.resizables = resizable ? [resizable] : [];
+    //     this.updateStyles();
+    // }
 
     updateStyles() {
         if (this.resizables.length) {
@@ -113,4 +105,4 @@ class Resizable {
     }
 }
 
-export default Resizable;
+export default ResizableElement;
