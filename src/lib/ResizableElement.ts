@@ -17,6 +17,7 @@ class ResizableElement extends EventTarget {
         this.bindEvents();
 
         this.on('resizestart', (e) => {
+            e.preventDefault();
             this.resizing = true;
             this.setSides(e);
             this.box.show(this.sides).update(e);
