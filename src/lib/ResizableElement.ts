@@ -1,6 +1,6 @@
 import Utils from './Utils';
 import EventTarget from './EventTarget';
-import ResizeLine from './ResizeLine';
+import Box from './Box';
 
 class ResizableElement extends EventTarget {
     static DEFAULT_AMPLITUDE = 6;
@@ -8,57 +8,59 @@ class ResizableElement extends EventTarget {
     container: HTMLElement;
     sides: Array<number>;
     resizing = false;
-    line: ResizeLine = new ResizeLine();
+    box: Box;
 
     constructor(container) {
         super();
         this.container = container;
+        this.box = new Box(this.container);
         this.bindEvents();
 
         this.on('resizestart', (e) => {
             this.resizing = true;
             this.setSides(e);
-            this.line.show(this.sides, e);
+            this.box.show(this.sides).update(e);
+            document.addEventListener('mouseup', this.handleMouseup);
         });
 
-        this.on('resizeevaluate', (e) => {
+        this.on('resizeevaluate', (e: MouseEvent) => {
             this.setSides(e);
         });
 
         this.on('resizemeasure', (e) => {
-            this.line.update(e);
+            this.box.update(e);
         });
 
         this.on('resizeend', (e) => {
             this.resize(e);
             this.resizing = false;
             this.updateStyles();
-            this.line.hide();
+            this.box.hide();
+            document.removeEventListener('mouseup', this.handleMouseup);
         });
     }
 
     destroy() {
         this.unbindEvents();
+        this.box.destroy();
     }
 
     bindEvents() {
         document.addEventListener('mousemove', this.handleMousemove);
         document.addEventListener('mousedown', this.handleMousedown);
-        document.addEventListener('mouseup', this.handleMouseup);
     }
 
     unbindEvents() {
         document.removeEventListener('mousemove', this.handleMousemove);
         document.removeEventListener('mousedown', this.handleMousedown);
-        document.removeEventListener('mouseup', this.handleMouseup);
     }
 
     resize(e) {
         if (this.sides[0] === 1) {
-            this.container.style.width = Utils.getWidth(this.container) + this.sides[0] * e.movementX + 'px';
+            this.container.style.width = this.box.width - (this.container.offsetWidth - this.container.clientWidth) * 2 + 'px';
         }
         if (this.sides[1] === 1) {
-            this.container.style.height = Utils.getHeight(this.container) + this.sides[1] * e.movementY + 'px';
+            this.container.style.height = this.box.height - (this.container.offsetHeight - this.container.clientHeight) * 2 + 'px';
         }
     }
 
