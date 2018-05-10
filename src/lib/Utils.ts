@@ -82,67 +82,29 @@ class Utils {
     * y =  1: Bottom
     * y =  0: Not resizable vertically
     */
-    static getResizableSides(element, amplitude, mouseOffset) {
+    static getResizableSides(element, amplitude, e: MouseEvent) {
+        let rect = element.getBoundingClientRect();
         let sides: Array<number> = [];
-        let inWidthRange = mouseOffset.left >= element.offsetLeft && mouseOffset.left <= element.offsetLeft + element.offsetWidth;
-        let inHeightRange = mouseOffset.top >= element.offsetTop && mouseOffset.top <= element.offsetTop + element.offsetHeight;
+        let inWidthRange = e.clientX >= rect.left && e.clientX <= rect.left + rect.width;
+        let inHeightRange = e.clientY >= rect.top && e.clientY <= rect.top + element.offsetHeight;
 
-        if (Math.abs(mouseOffset.left - element.offsetLeft) <= amplitude && inHeightRange) {
+        if (Math.abs(e.clientX - rect.left) <= amplitude && inHeightRange) {
             sides[0] = -1;
-        } else if (Math.abs(mouseOffset.left - (element.offsetLeft + element.offsetWidth)) <= amplitude && inHeightRange) {
+        } else if (Math.abs(e.clientX - (rect.left + rect.width)) <= amplitude && inHeightRange) {
             sides[0] = 1;
         } else {
             sides[0] = 0;
         }
 
-        if (Math.abs(mouseOffset.top - element.offsetTop) <= amplitude && inWidthRange) {
+        if (Math.abs(e.clientY - rect.top) <= amplitude && inWidthRange) {
             sides[1] = -1;
-        } else if (Math.abs(mouseOffset.top - (element.offsetTop + element.offsetHeight)) <= amplitude && inWidthRange) {
+        } else if (Math.abs(e.clientY - (rect.top + element.offsetHeight)) <= amplitude && inWidthRange) {
             sides[1] = 1;
         } else {
             sides[1] = 0;
         }
 
-        // console.log('\nelement offset left', element.offsetLeft);
-        // console.log('element offset width', element.offsetWidth);
-        // console.log('mouse offset left', mouseOffset.left);
-        // console.log('offsetParent', element.offsetParent);
-
         return sides;
-    }
-
-    /*
-    * Get @element's coordinates relative to @parent
-    */
-    static getOffset(element: HTMLElement, parent: HTMLElement) {
-        let offset = {
-            top: 0,
-            left: 0
-        };
-
-        while (element !== parent) {
-            offset.top += element.offsetTop;
-            offset.left += element.offsetLeft;
-
-            if (element.offsetParent) {
-                element = element.offsetParent as HTMLElement;
-            }
-            else {
-                return null;
-            }
-        }
-
-        return offset;
-    }
-
-    /*
-    * Get cursor coordinates relative to @parent
-    */
-    static getMouseOffset(parent: HTMLElement, e: MouseEvent) {
-        return {
-            top: e.pageY - parent.offsetTop,
-            left: e.pageX - parent.offsetLeft
-        };
     }
 
     /*

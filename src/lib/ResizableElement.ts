@@ -65,9 +65,7 @@ class ResizableElement extends EventTarget {
     }
 
     setSides(e) {
-        let mouseOffset = Utils.getMouseOffset(this.container.offsetParent as HTMLElement, e);
-        if (!mouseOffset) return;
-        this.sides = Utils.getResizableSides(this.container, ResizableElement.DEFAULT_AMPLITUDE, mouseOffset);
+        this.sides = Utils.getResizableSides(this.container, ResizableElement.DEFAULT_AMPLITUDE, e);
         this.updateStyles();
     }
 
