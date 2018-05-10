@@ -1,106 +1,115 @@
 import Utils from './Utils';
 import EventTarget from './EventTarget';
+import Box from './Box';
 
-abstract class ResizableElement extends EventTarget {
-    static DEFAULT_AMPLITUDE = 6;
+class ResizableElement extends EventTarget {
+    static DEFAULT_AMPLITUDE = 8;
 
     container: HTMLElement;
-    resizables = [];
+    sides: Array<number>;
     resizing = false;
+    box: Box;
 
     constructor(container) {
         super();
         this.container = container;
+        this.box = new Box(this.container);
         this.bindEvents();
+
+        this.on('resizestart', (e) => {
+            this.resizing = true;
+            this.setSides(e);
+            this.box.show(this.sides).update(e);
+            document.addEventListener('mouseup', this.handleMouseup);
+        });
+
+        this.on('resizeevaluate', (e: MouseEvent) => {
+            this.setSides(e);
+        });
+
+        this.on('resizemeasure', (e) => {
+            this.box.update(e);
+        });
+
+        this.on('resizeend', (e) => {
+            this.resize(e);
+            this.resizing = false;
+            this.updateStyles();
+            this.box.hide();
+            document.removeEventListener('mouseup', this.handleMouseup);
+        });
     }
 
     destroy() {
         this.unbindEvents();
+        this.box.destroy();
     }
 
     bindEvents() {
         document.addEventListener('mousemove', this.handleMousemove);
         document.addEventListener('mousedown', this.handleMousedown);
-        document.addEventListener('mouseup', this.handleMouseup);
     }
 
     unbindEvents() {
         document.removeEventListener('mousemove', this.handleMousemove);
         document.removeEventListener('mousedown', this.handleMousedown);
-        document.removeEventListener('mouseup', this.handleMouseup);
+    }
+
+    resize(e) {
+        if (this.sides[0] === 1) {
+            this.container.style.width = this.box.width + 'px';
+        }
+        if (this.sides[1] === 1) {
+            this.container.style.height = this.box.height + 'px';
+        }
+    }
+
+    setSides(e) {
+        this.sides = Utils.getResizableSides(this.container, ResizableElement.DEFAULT_AMPLITUDE, e);
+        this.updateStyles();
+    }
+
+    updateStyles() {
+        let style = this.container.style,
+            sides = this.sides;
+
+        if (sides.some(side => !!side)) {
+            style.userSelect = 'none';
+
+            if (sides.every(side => !!side)) {
+                style.cursor = 'se-resize';
+            }
+            else if (sides[0]) {
+                style.cursor = 'col-resize';
+            }
+            else if (sides[1]) {
+                style.cursor = 'row-resize';
+            }
+        }
+        else {
+            style.userSelect = 'default';
+            style.cursor = 'default';
+        }
     }
 
     handleMousedown = (e) => {
-        if (this.resizables.length) {
-            this.resizing = true;
-            this.trigger('resize', e);
+        if (this.sides.some(side => !!side)) {
+            this.trigger('resizestart', e);
         }
     }
 
-    abstract resizeResizables(e: MouseEvent): void;
-    abstract setResizables(e: MouseEvent): void;
-
     handleMousemove = (e) => {
         if (this.resizing) {
-            this.resizeResizables(e);
-            //Utils.resizeResizables(this.resizables, e.movementX, e.movementY);
+            this.trigger('resizemeasure', e);
         }
         else {
-            this.setResizables(e);
-            this.updateStyles();
+            this.trigger('resizeevaluate', e);
         }
     }
 
     handleMouseup = (e) => {
         if (this.resizing) {
-            this.resizing = false;
-            this.setResizables(e);
-        }
-    }
-
-    // setResizables(e) {
-    //     let mouseOffset = Utils.getMouseOffset(this.parent, e);
-
-    //     if (!mouseOffset) {
-    //         return;
-    //     }
-
-    //     let resizable;
-    //     if (this.container.tagName.toLowerCase() === 'table') {
-    //         resizable = Utils.getTableResizableCell(this.matrix, mouseOffset, Resizable.DEFAULT_AMPLITUDE);
-    //     }
-    //     else {
-    //         let sides = Utils.getResizableSides(this.container, Resizable.DEFAULT_AMPLITUDE, mouseOffset);
-
-    //         if (sides.some(side => side !== 0)) {
-    //             resizable = {
-    //                 element: this.container,
-    //                 sides
-    //             };
-    //         }
-    //     }
-
-    //     this.resizables = resizable ? [resizable] : [];
-    //     this.updateStyles();
-    // }
-
-    updateStyles() {
-        if (this.resizables.length) {
-            this.container.style.userSelect = 'none';
-
-            if (this.resizables[0].sides.every(side => side)) {
-                this.container.style.cursor = 'move';
-            }
-            else if (this.resizables[0].sides[0]) {
-                this.container.style.cursor = 'col-resize';
-            }
-            else if (this.resizables[0].sides[1]) {
-                this.container.style.cursor = 'row-resize';
-            }
-        }
-        else {
-            this.container.style.userSelect = 'default';
-            this.container.style.cursor = 'default';
+            this.trigger('resizeend', e);
         }
     }
 }

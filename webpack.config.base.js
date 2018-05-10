@@ -69,7 +69,7 @@ var webpackConfig = {
     },
     plugins: [
         new ExtractTextPlugin({
-            filename: 'komponents.css',
+            filename: 'k-resizable.css',
             allChunks: true
         }),
         new webpack.DefinePlugin({

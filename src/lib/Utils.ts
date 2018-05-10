@@ -82,22 +82,23 @@ class Utils {
     * y =  1: Bottom
     * y =  0: Not resizable vertically
     */
-    static getResizableSides(element, amplitude, mouseOffset) {
+    static getResizableSides(element, amplitude, e: MouseEvent) {
+        let rect = element.getBoundingClientRect();
         let sides: Array<number> = [];
-        let inWidthRange = mouseOffset.left >= element.offsetLeft && mouseOffset.left <= element.offsetLeft + element.offsetWidth;
-        let inHeightRange = mouseOffset.top >= element.offsetTop && mouseOffset.top <= element.offsetTop + element.offsetHeight;
+        let inWidthRange = e.clientX >= rect.left && e.clientX <= rect.left + rect.width;
+        let inHeightRange = e.clientY >= rect.top && e.clientY <= rect.top + element.offsetHeight;
 
-        if (Math.abs(mouseOffset.left - element.offsetLeft) <= amplitude && inHeightRange) {
+        if (Math.abs(e.clientX - rect.left) <= amplitude && inHeightRange) {
             sides[0] = -1;
-        } else if (Math.abs(mouseOffset.left - (element.offsetLeft + element.offsetWidth)) <= amplitude && inHeightRange) {
+        } else if (Math.abs(e.clientX - (rect.left + rect.width)) <= amplitude && inHeightRange) {
             sides[0] = 1;
         } else {
             sides[0] = 0;
         }
 
-        if (Math.abs(mouseOffset.top - element.offsetTop) <= amplitude && inWidthRange) {
+        if (Math.abs(e.clientY - rect.top) <= amplitude && inWidthRange) {
             sides[1] = -1;
-        } else if (Math.abs(mouseOffset.top - (element.offsetTop + element.offsetHeight)) <= amplitude && inWidthRange) {
+        } else if (Math.abs(e.clientY - (rect.top + element.offsetHeight)) <= amplitude && inWidthRange) {
             sides[1] = 1;
         } else {
             sides[1] = 0;
@@ -107,43 +108,27 @@ class Utils {
     }
 
     /*
-    * Get @element's coordinates relative to @parent
+    * Update resizable element's styles
     */
-    static getOffset(element: HTMLElement, parent: HTMLElement) {
-        let offset = {
-            top: 0,
-            left: 0
-        };
+    static updateResizableElementStyles(resizable: { element: HTMLElement, sides: Array<number> }) {
+        let style = resizable.element.style;
+        if (resizable) {
+            style.userSelect = 'none';
 
-        while (element !== parent) {
-            offset.top += element.offsetTop;
-            offset.left += element.offsetLeft;
-
-            if (element.offsetParent) {
-                element = element.offsetParent as HTMLElement;
+            if (resizable.sides.every(side => !!side)) {
+                style.cursor = 'move';
             }
-            else {
-                return null;
+            else if (resizable.sides[0]) {
+                style.cursor = 'col-resize';
+            }
+            else if (resizable.sides[1]) {
+                style.cursor = 'row-resize';
             }
         }
-
-        return offset;
-    }
-
-    /*
-    * Get cursor coordinates relative to @parent
-    */
-    static getMouseOffset(parent: HTMLElement, e: MouseEvent) {
-        let offset = this.getOffset(e.target as HTMLElement, parent as HTMLElement);
-
-        if (!offset) {
-            return null;
+        else {
+            style.userSelect = 'default';
+            style.cursor = 'default';
         }
-
-        return {
-            top: offset.top + e.offsetY,
-            left: offset.left + e.offsetX
-        };
     }
 
     /*
@@ -208,7 +193,7 @@ class Utils {
     /*
     * Get resizable table cell, it's sides and matrix coordinates
     */
-    static getTableResizableCell(cellMatrix: Array<Array<HTMLTableCellElement>>, mouseOffset, amplitude) {
+    static getTableResizableCell(cellMatrix: Array<Array<HTMLTableCellElement>>, amplitude, e: MouseEvent) {
         amplitude = Math.max(
             amplitude,
             this.getBorderSpacing(cellMatrix[0][0].offsetParent as HTMLElement)
@@ -216,11 +201,13 @@ class Utils {
 
         let x,
             y,
-            sides;
+            sides,
+            element;
 
         for (x = 0; x < cellMatrix.length; x++) {
             for (y = 0; y < cellMatrix[x].length; y++) {
-                sides = this.getResizableSides(cellMatrix[x][y], amplitude, mouseOffset);
+                element = cellMatrix[x][y];
+                sides = this.getResizableSides(element, amplitude, e);
                 if (sides.some(side => side !== 0)) {
                     // Ignore cells edges
                     if (sides[0] === -1 && x === 0 || sides[0] === 1 && x === cellMatrix.length - 1) {
@@ -257,7 +244,7 @@ class Utils {
     static getTableOtherResizableCells(cellMatrix: Array<Array<HTMLTableCellElement>>, resizableCell) {
         let {
             sides,
-            cell,
+            element: cell,
             x,
             y
         } = resizableCell;
