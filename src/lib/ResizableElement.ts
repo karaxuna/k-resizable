@@ -1,17 +1,40 @@
 import Utils from './Utils';
 import EventTarget from './EventTarget';
+import ResizeLine from './ResizeLine';
 
-abstract class ResizableElement extends EventTarget {
+class ResizableElement extends EventTarget {
     static DEFAULT_AMPLITUDE = 6;
 
     container: HTMLElement;
-    resizables = [];
+    sides: Array<number>;
     resizing = false;
+    line: ResizeLine = new ResizeLine();
 
     constructor(container) {
         super();
         this.container = container;
         this.bindEvents();
+
+        this.on('resizestart', (e) => {
+            this.resizing = true;
+            this.setSides(e);
+            this.line.show(this.sides, e);
+        });
+
+        this.on('resizeevaluate', (e) => {
+            this.setSides(e);
+        });
+
+        this.on('resizemeasure', (e) => {
+            this.line.update(e);
+        });
+
+        this.on('resizeend', (e) => {
+            this.resize(e);
+            this.resizing = false;
+            this.updateStyles();
+            this.line.hide();
+        });
     }
 
     destroy() {
@@ -30,77 +53,63 @@ abstract class ResizableElement extends EventTarget {
         document.removeEventListener('mouseup', this.handleMouseup);
     }
 
-    handleMousedown = (e) => {
-        if (this.resizables.length) {
-            this.resizing = true;
-            this.trigger('resize', e);
+    resize(e) {
+        if (this.sides[0] === 1) {
+            this.container.style.width = Utils.getWidth(this.container) + this.sides[0] * e.movementX + 'px';
+        }
+        if (this.sides[1] === 1) {
+            this.container.style.height = Utils.getHeight(this.container) + this.sides[1] * e.movementY + 'px';
         }
     }
 
-    abstract resizeResizables(e: MouseEvent): void;
-    abstract setResizables(e: MouseEvent): void;
+    setSides(e) {
+        let mouseOffset = Utils.getMouseOffset(this.container.offsetParent as HTMLElement, e);
+        if (!mouseOffset) return;
+        this.sides = Utils.getResizableSides(this.container, ResizableElement.DEFAULT_AMPLITUDE, mouseOffset);
+        this.updateStyles();
+    }
+
+    updateStyles() {
+        let style = this.container.style,
+            sides = this.sides;
+
+        if (sides.some(side => !!side)) {
+            style.userSelect = 'none';
+
+            if (sides.every(side => !!side)) {
+                style.cursor = 'move';
+            }
+            else if (sides[0]) {
+                style.cursor = 'col-resize';
+            }
+            else if (sides[1]) {
+                style.cursor = 'row-resize';
+            }
+        }
+        else {
+            style.userSelect = 'default';
+            style.cursor = 'default';
+        }
+    }
+
+    handleMousedown = (e) => {
+        if (this.sides.some(side => !!side)) {
+            this.trigger('resizestart', e);
+        }
+    }
 
     handleMousemove = (e) => {
         if (this.resizing) {
-            this.resizeResizables(e);
-            //Utils.resizeResizables(this.resizables, e.movementX, e.movementY);
+            this.trigger('resizemeasure', e);
         }
         else {
-            this.setResizables(e);
-            this.updateStyles();
+            this.trigger('resizeevaluate', e);
         }
     }
 
     handleMouseup = (e) => {
         if (this.resizing) {
-            this.resizing = false;
-            this.setResizables(e);
-        }
-    }
-
-    // setResizables(e) {
-    //     let mouseOffset = Utils.getMouseOffset(this.parent, e);
-
-    //     if (!mouseOffset) {
-    //         return;
-    //     }
-
-    //     let resizable;
-    //     if (this.container.tagName.toLowerCase() === 'table') {
-    //         resizable = Utils.getTableResizableCell(this.matrix, mouseOffset, Resizable.DEFAULT_AMPLITUDE);
-    //     }
-    //     else {
-    //         let sides = Utils.getResizableSides(this.container, Resizable.DEFAULT_AMPLITUDE, mouseOffset);
-
-    //         if (sides.some(side => side !== 0)) {
-    //             resizable = {
-    //                 element: this.container,
-    //                 sides
-    //             };
-    //         }
-    //     }
-
-    //     this.resizables = resizable ? [resizable] : [];
-    //     this.updateStyles();
-    // }
-
-    updateStyles() {
-        if (this.resizables.length) {
-            this.container.style.userSelect = 'none';
-
-            if (this.resizables[0].sides.every(side => side)) {
-                this.container.style.cursor = 'move';
-            }
-            else if (this.resizables[0].sides[0]) {
-                this.container.style.cursor = 'col-resize';
-            }
-            else if (this.resizables[0].sides[1]) {
-                this.container.style.cursor = 'row-resize';
-            }
-        }
-        else {
-            this.container.style.userSelect = 'default';
-            this.container.style.cursor = 'default';
+            this.trigger('resizeend', e);
         }
     }
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { render } from 'react-dom';
-import Resizable from '../lib/Resizable';
+import ResizableElement from '../lib/ResizableElement';
 import './index.scss';
 
-let resizable = new Resizable(document.getElementsByTagName('table')[0]);
+let resizable = new ResizableElement(document.getElementById('box'));

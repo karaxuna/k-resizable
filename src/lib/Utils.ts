@@ -103,6 +103,11 @@ class Utils {
             sides[1] = 0;
         }
 
+        // console.log('\nelement offset left', element.offsetLeft);
+        // console.log('element offset width', element.offsetWidth);
+        // console.log('mouse offset left', mouseOffset.left);
+        // console.log('offsetParent', element.offsetParent);
+
         return sides;
     }
 
@@ -134,16 +139,34 @@ class Utils {
     * Get cursor coordinates relative to @parent
     */
     static getMouseOffset(parent: HTMLElement, e: MouseEvent) {
-        let offset = this.getOffset(e.target as HTMLElement, parent as HTMLElement);
-
-        if (!offset) {
-            return null;
-        }
-
         return {
-            top: offset.top + e.offsetY,
-            left: offset.left + e.offsetX
+            top: e.pageY - parent.offsetTop,
+            left: e.pageX - parent.offsetLeft
         };
+    }
+
+    /*
+    * Update resizable element's styles
+    */
+    static updateResizableElementStyles(resizable: { element: HTMLElement, sides: Array<number> }) {
+        let style = resizable.element.style;
+        if (resizable) {
+            style.userSelect = 'none';
+
+            if (resizable.sides.every(side => !!side)) {
+                style.cursor = 'move';
+            }
+            else if (resizable.sides[0]) {
+                style.cursor = 'col-resize';
+            }
+            else if (resizable.sides[1]) {
+                style.cursor = 'row-resize';
+            }
+        }
+        else {
+            style.userSelect = 'default';
+            style.cursor = 'default';
+        }
     }
 
     /*
