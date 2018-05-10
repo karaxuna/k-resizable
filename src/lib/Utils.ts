@@ -193,7 +193,7 @@ class Utils {
     /*
     * Get resizable table cell, it's sides and matrix coordinates
     */
-    static getTableResizableCell(cellMatrix: Array<Array<HTMLTableCellElement>>, mouseOffset, amplitude) {
+    static getTableResizableCell(cellMatrix: Array<Array<HTMLTableCellElement>>, amplitude, e: MouseEvent) {
         amplitude = Math.max(
             amplitude,
             this.getBorderSpacing(cellMatrix[0][0].offsetParent as HTMLElement)
@@ -201,11 +201,13 @@ class Utils {
 
         let x,
             y,
-            sides;
+            sides,
+            element;
 
         for (x = 0; x < cellMatrix.length; x++) {
             for (y = 0; y < cellMatrix[x].length; y++) {
-                sides = this.getResizableSides(cellMatrix[x][y], amplitude, mouseOffset);
+                element = cellMatrix[x][y];
+                sides = this.getResizableSides(element, amplitude, e);
                 if (sides.some(side => side !== 0)) {
                     // Ignore cells edges
                     if (sides[0] === -1 && x === 0 || sides[0] === 1 && x === cellMatrix.length - 1) {
@@ -242,7 +244,7 @@ class Utils {
     static getTableOtherResizableCells(cellMatrix: Array<Array<HTMLTableCellElement>>, resizableCell) {
         let {
             sides,
-            cell,
+            element: cell,
             x,
             y
         } = resizableCell;

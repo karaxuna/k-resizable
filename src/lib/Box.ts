@@ -33,11 +33,11 @@ export default class Box {
     })
 
     get width() {
-        return this.container.clientWidth;
+        return this.container.clientWidth - (this.target.offsetWidth - this.target.clientWidth) * 2;
     }
 
     get height() {
-        return this.container.clientHeight;
+        return this.container.clientHeight - (this.target.offsetHeight - this.target.clientHeight) * 2;
     }
 
     destroy = chain<Box>(() => {

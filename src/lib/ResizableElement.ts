@@ -3,7 +3,7 @@ import EventTarget from './EventTarget';
 import Box from './Box';
 
 class ResizableElement extends EventTarget {
-    static DEFAULT_AMPLITUDE = 6;
+    static DEFAULT_AMPLITUDE = 8;
 
     container: HTMLElement;
     sides: Array<number>;
@@ -57,10 +57,10 @@ class ResizableElement extends EventTarget {
 
     resize(e) {
         if (this.sides[0] === 1) {
-            this.container.style.width = this.box.width - (this.container.offsetWidth - this.container.clientWidth) * 2 + 'px';
+            this.container.style.width = this.box.width + 'px';
         }
         if (this.sides[1] === 1) {
-            this.container.style.height = this.box.height - (this.container.offsetHeight - this.container.clientHeight) * 2 + 'px';
+            this.container.style.height = this.box.height + 'px';
         }
     }
 
