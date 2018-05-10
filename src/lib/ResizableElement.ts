@@ -77,7 +77,7 @@ class ResizableElement extends EventTarget {
             style.userSelect = 'none';
 
             if (sides.every(side => !!side)) {
-                style.cursor = 'move';
+                style.cursor = 'se-resize';
             }
             else if (sides[0]) {
                 style.cursor = 'col-resize';
