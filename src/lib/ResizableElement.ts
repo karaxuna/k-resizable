@@ -33,7 +33,6 @@ class ResizableElement extends EventTarget {
         });
 
         this.on('resizeend', (e) => {
-            this.resize(e);
             this.resizing = false;
             this.updateStyles();
             this.box.hide();
@@ -54,15 +53,6 @@ class ResizableElement extends EventTarget {
     unbindEvents() {
         document.removeEventListener('mousemove', this.handleMousemove);
         document.removeEventListener('mousedown', this.handleMousedown);
-    }
-
-    resize(e) {
-        if (this.sides[0] === 1) {
-            this.container.style.width = this.box.width + 'px';
-        }
-        if (this.sides[1] === 1) {
-            this.container.style.height = this.box.height + 'px';
-        }
     }
 
     setSides(e) {
