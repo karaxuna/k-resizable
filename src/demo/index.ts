@@ -5,11 +5,12 @@ import './index.scss';
 
 let resizable = new ResizableElement(document.getElementById('box'));
 
-resizable.on('resizeend', (e) => {
+resizable.on('resizeend', ({ width, height }) => {
     if (resizable.sides[0] === 1) {
-        resizable.container.style.width = resizable.box.width + 'px';
+        resizable.container.style.width = width + 'px';
     }
+    
     if (this.sides[1] === 1) {
-        resizable.container.style.height = resizable.box.height + 'px';
+        resizable.container.style.height = height + 'px';
     }
 });

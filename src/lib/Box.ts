@@ -9,6 +9,7 @@ export default class Box {
     constructor(target: HTMLElement) {
         this.target = target;
         let container = this.container = document.createElement('div');
+        container.style.boxSizing = 'border-box';
         container.style.border = 'solid 1px #4285F4';
         container.style.pointerEvents = 'none';
         container.style.position = 'absolute';
