@@ -100,7 +100,12 @@ class ResizableElement extends EventTarget {
 
     handleMouseup = (e) => {
         if (this.resizing) {
-            this.trigger('resizeend', e);
+            this.trigger('resizeend', {
+                ...e,
+                width: this.box.width,
+                height: this.box.height,
+                sides: this.sides.slice()
+            });
         }
     }
 }
