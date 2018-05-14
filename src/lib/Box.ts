@@ -42,6 +42,6 @@ export default class Box {
     }
 
     destroy = chain<Box>(() => {
-        document.body.removeChild(this.container);
+        if (document.body.contains(this.container)) document.body.removeChild(this.container);
     })
 }
