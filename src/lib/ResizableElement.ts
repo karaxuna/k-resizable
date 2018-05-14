@@ -57,12 +57,12 @@ class ResizableElement extends EventTarget {
 
     bindEvents() {
         document.addEventListener('mousemove', this.handleMousemove);
-        document.addEventListener('mousedown', this.handleMousedown);
+        this.container.addEventListener('mousedown', this.handleMousedown);
     }
 
     unbindEvents() {
         document.removeEventListener('mousemove', this.handleMousemove);
-        document.removeEventListener('mousedown', this.handleMousedown);
+        this.container.removeEventListener('mousedown', this.handleMousedown);
     }
 
     setSides(e) {

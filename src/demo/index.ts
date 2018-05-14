@@ -12,7 +12,7 @@ resizable.on('resizeend', ({ width, height }) => {
         resizable.container.style.width = width + 'px';
     }
     
-    if (this.sides[1] === 1) {
+    if (resizable.sides[1] === 1) {
         resizable.container.style.height = height + 'px';
     }
 });
