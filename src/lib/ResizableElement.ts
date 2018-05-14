@@ -2,16 +2,26 @@ import Utils from './Utils';
 import EventTarget from './EventTarget';
 import Box from './Box';
 
+export interface IResizableElementOptions {
+    mapSides?: (sides: Array<number>) => Array<number>;
+}
+
 class ResizableElement extends EventTarget {
     static DEFAULT_AMPLITUDE = 8;
 
+    options: IResizableElementOptions;
     container: HTMLElement;
     sides: Array<number>;
     resizing = false;
     box: Box;
 
-    constructor(container) {
+    static defaultOptions: IResizableElementOptions = {
+        mapSides: (sides) => sides
+    };
+
+    constructor(container, options: IResizableElementOptions = {}) {
         super();
+        this.options = { ...ResizableElement.defaultOptions, ...options };
         this.container = container;
         this.box = new Box(this.container);
         this.bindEvents();
@@ -56,7 +66,7 @@ class ResizableElement extends EventTarget {
     }
 
     setSides(e) {
-        this.sides = Utils.getResizableSides(this.container, ResizableElement.DEFAULT_AMPLITUDE, e);
+        this.sides = this.options.mapSides(Utils.getResizableSides(this.container, ResizableElement.DEFAULT_AMPLITUDE, e));
         this.updateStyles();
     }
 
