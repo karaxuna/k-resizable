@@ -7,7 +7,7 @@ export interface IResizableElementOptions {
 }
 
 class ResizableElement extends EventTarget {
-    static DEFAULT_AMPLITUDE = 8;
+    static DEFAULT_AMPLITUDE = 7;
 
     options: IResizableElementOptions;
     container: HTMLElement;
