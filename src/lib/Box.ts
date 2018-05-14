@@ -29,8 +29,8 @@ export default class Box {
         let rect = this.target.getBoundingClientRect();
         this.container.style.top = rect.top + 'px';
         this.container.style.left = rect.left + 'px';
-        this.container.style.width = (this.sides[0] === 1 ? e.clientX - rect.left : this.target.offsetWidth) + 'px';
-        this.container.style.height = (this.sides[1] === 1 ? e.clientY - rect.top : this.target.offsetHeight) + 'px';
+        this.container.style.width = (this.sides[0] === 1 ? e.clientX - rect.left : (rect.width + 1)) + 'px';
+        this.container.style.height = (this.sides[1] === 1 ? e.clientY - rect.top : (rect.height + 1)) + 'px';
     })
 
     get width() {
