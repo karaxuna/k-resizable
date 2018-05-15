@@ -13,6 +13,7 @@ export default class Box {
         container.style.border = 'solid 1px #4285F4';
         container.style.pointerEvents = 'none';
         container.style.position = 'absolute';
+        container.style.zIndex = '2147483647';
     }
 
     show = chain<Box, Array<number>>((sides) => {
