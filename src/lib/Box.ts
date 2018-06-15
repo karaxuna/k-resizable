@@ -10,7 +10,7 @@ export default class Box {
         this.target = target;
         let container = this.container = document.createElement('div');
         container.style.boxSizing = 'border-box';
-        container.style.border = 'solid 1px #4285F4';
+        container.style.border = 'solid 1px #eaeaea';
         container.style.pointerEvents = 'none';
         container.style.position = 'absolute';
         container.style.zIndex = '2147483647';
